@@ -126,7 +126,7 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
         """It should show the information of a specified account"""
-        account = _create_accounts(1)[0]
+        account = self._create_accounts(1)[0]
         response = self.client.get(
             '{base}/{id}'.format(base=BASE_URL, id=account.id),
         )
