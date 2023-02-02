@@ -226,8 +226,21 @@ class TestAccountService(TestCase):
 
     def test_list_accounts(self):
         """It should retrieve a list of all accounts in the system."""
-        accounts = self._create_accounts(5)
+        count = 5
+        self._create_accounts(count)
 
+        url = self._get_accounts_url(None)
+        response = self.client.get(url)
+
+        #Check the status code
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        #Make sure that all the accounts are there.
+        retrieved = response.get_json()
+        self.assertEqual(len(retrieved), count)
+
+    def test_list_accounts_if_no_accounts_found(self):
+        """It should respond with an empty list and a 200 status code."""
         url = self._get_accounts_url(None)
 
         response = self.client.get(url)
@@ -237,4 +250,4 @@ class TestAccountService(TestCase):
 
         #Make sure that all the accounts are there.
         retrieved = response.get_json()
-        self.assertEqual(len(accounts), len(retrieved))
+        self.assertEqual(len(retrieved), 0)
