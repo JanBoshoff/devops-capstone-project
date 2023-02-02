@@ -69,6 +69,13 @@ class TestAccountService(TestCase):
             account.id = new_account["id"]
             accounts.append(account)
         return accounts
+    
+    def _assert_that_accounts_are_the_same(self, a, b):
+        self.assertEqual(a["name"], b.name)
+        self.assertEqual(a["email"], b.email)
+        self.assertEqual(a["address"], b.address)
+        self.assertEqual(a["phone_number"], b.phone_number)
+        self.assertEqual(a["date_joined"], str(b.date_joined))
 
     ######################################################################
     #  A C C O U N T   T E S T   C A S E S
@@ -125,12 +132,23 @@ class TestAccountService(TestCase):
 
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
-        """It should show the information of a specified account"""
+        """Reading an account should show the information of a specified account"""
         account = self._create_accounts(1)[0]
         response = self.client.get(
             '{base}/{id}'.format(base=BASE_URL, id=account.id),
         )
 
+        #Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        #Make sure the account information is correct
+        retrieved = response.get_json()
+        self._assert_that_accounts_are_the_same(retrieved, account)
 
+    def test_read_a_nonexisting_account(self):
+        """Reading an account that does not exist should return a 404 error"""
+        response = self.client.get(
+            '{base}/{id}'.format(base=BASE_URL, id=0),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
