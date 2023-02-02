@@ -214,3 +214,12 @@ class TestAccountService(TestCase):
         #Make sure the account is no longer in the system.
         test = self.client.get(url)
         self.assertEqual(test.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_delete_non_existing_account(self):
+        """Deleting an account that does not exist should also return a 204 status"""
+        url = self._get_accounts_url(0)
+
+        response = self.client.delete(url)
+
+        #Check the status code
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
