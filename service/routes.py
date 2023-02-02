@@ -68,7 +68,25 @@ def create_accounts():
 # READ AN ACCOUNT
 ######################################################################
 
-# ... place you code here to READ an account ...
+@app.route("/accounts/<int:id>", methods=["GET"])
+def read_account(id):
+    """
+    Reads an Account
+    This endpoint will read an Account based on the account ID passed in the URL
+    """
+    app.logger.info("Request to read an Account")
+    account = Account.find(id)
+
+    if not account:
+        message = f"No account with [{id}] was found"
+        return abort(status.HTTP_404_NOT_FOUND, message)
+    
+    message = account.serialize()
+
+    return make_response(
+        jsonify(message), 
+        status.HTTP_200_OK
+    )
 
 
 ######################################################################
@@ -88,7 +106,6 @@ def create_accounts():
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
 
 def check_content_type(media_type):
     """Checks that the media type is correct"""
