@@ -223,3 +223,18 @@ class TestAccountService(TestCase):
 
         #Check the status code
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_list_accounts(self):
+        """It should retrieve a list of all accounts in the system."""
+        accounts = self._create_accounts(5)
+
+        url = self._get_accounts_url(None)
+
+        response = self.client.get(url)
+
+        #Check the status code
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        #Make sure that all the accounts are there.
+        retrieved = response.get_json()
+        self.assertEqual(len(accounts), len(retrieved))
