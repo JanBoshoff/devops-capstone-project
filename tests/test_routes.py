@@ -77,6 +77,13 @@ class TestAccountService(TestCase):
         self.assertEqual(a["phone_number"], b.phone_number)
         self.assertEqual(a["date_joined"], str(b.date_joined))
 
+    def _get_accounts_url(self, id):
+        if id is None:
+            return BASE_URL
+
+        return '{base}/{id}'.format(base=BASE_URL, id=id)
+        
+
     ######################################################################
     #  A C C O U N T   T E S T   C A S E S
     ######################################################################
@@ -134,9 +141,9 @@ class TestAccountService(TestCase):
     def test_read_an_account(self):
         """Reading an account should show the information of a specified account"""
         account = self._create_accounts(1)[0]
-        response = self.client.get(
-            '{base}/{id}'.format(base=BASE_URL, id=account.id),
-        )
+        url = self._get_accounts_url(account.id)
+        
+        response = self.client.get(url)
 
         #Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -151,4 +158,42 @@ class TestAccountService(TestCase):
             '{base}/{id}'.format(base=BASE_URL, id=0),
         )
 
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_account(self):
+        """Updating an account should persist the new information"""
+        account = self._create_accounts(1)[0]
+        account.name = 'UpdateTest'
+        account.phone_number = '000-000'
+
+        url = self._get_accounts_url(account.id)
+
+        response = self.client.put(
+            url,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+        
+        #Check the status code
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        #Make sure the account information is correct
+        test = self.client.get(url)
+        retrieved = test.get_json()
+        self._assert_that_accounts_are_the_same(retrieved, account)
+
+    def test_update_non_existing_account(self):
+        """Updating an account that does not exist should return a 404 error"""
+        account = self._create_accounts(1)[0]
+        account.name = 'UpdateTest'
+
+        url = self._get_accounts_url(0)
+
+        response = self.client.put(
+            url,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+
+        #Check the status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
