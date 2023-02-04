@@ -5,6 +5,7 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+
 import os
 import logging
 from unittest import TestCase
@@ -31,6 +32,7 @@ class TestAccountService(TestCase):
     @classmethod
     def setUpClass(cls):
         """Run once before all tests"""
+
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -45,6 +47,7 @@ class TestAccountService(TestCase):
 
     def setUp(self):
         """Runs before each test"""
+
         db.session.query(Account).delete()  # clean up the last tests
         db.session.commit()
 
@@ -52,6 +55,7 @@ class TestAccountService(TestCase):
 
     def tearDown(self):
         """Runs once after each test case"""
+
         db.session.remove()
 
     ######################################################################
@@ -60,6 +64,7 @@ class TestAccountService(TestCase):
 
     def _create_accounts(self, count):
         """Factory method to create accounts in bulk"""
+
         accounts = []
         for _ in range(count):
             account = AccountFactory()
@@ -94,11 +99,13 @@ class TestAccountService(TestCase):
 
     def test_index(self):
         """It should get 200_OK from the Home Page"""
+
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_health(self):
         """It should be healthy"""
+
         resp = self.client.get("/health")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
@@ -106,6 +113,7 @@ class TestAccountService(TestCase):
 
     def test_create_account(self):
         """It should Create a new Account"""
+
         account = AccountFactory()
         response = self.client.post(
             BASE_URL,
@@ -128,11 +136,13 @@ class TestAccountService(TestCase):
 
     def test_bad_request(self):
         """It should not Create an Account when sending the wrong data"""
+
         response = self.client.post(BASE_URL, json={"name": "not enough data"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_unsupported_media_type(self):
         """It should not Create an Account when sending the wrong media type"""
+
         account = AccountFactory()
         response = self.client.post(
             BASE_URL,
@@ -149,10 +159,10 @@ class TestAccountService(TestCase):
         
         response = self.client.get(url)
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Make sure the account information is correct
+        # Make sure the account information is correct
         retrieved = response.get_json()
         self._assert_that_accounts_are_the_same(retrieved, account)
 
@@ -178,10 +188,10 @@ class TestAccountService(TestCase):
             content_type="application/json"
         )
         
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Make sure the account information is correct
+        # Make sure the account information is correct
         test = self.client.get(url)
         retrieved = test.get_json()
         self._assert_that_accounts_are_the_same(retrieved, account)
@@ -199,7 +209,7 @@ class TestAccountService(TestCase):
             content_type="application/json"
         )
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -211,11 +221,11 @@ class TestAccountService(TestCase):
 
         response = self.client.delete(url)
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         
 
-        #Make sure the account is no longer in the system.
+        # Make sure the account is no longer in the system.
         test = self.client.get(url)
         self.assertEqual(test.status_code, status.HTTP_404_NOT_FOUND)
     
@@ -225,7 +235,7 @@ class TestAccountService(TestCase):
 
         response = self.client.delete(url)
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_list_accounts(self):
@@ -236,10 +246,10 @@ class TestAccountService(TestCase):
         url = self._get_accounts_url(None)
         response = self.client.get(url)
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Make sure that all the accounts are there.
+        # Make sure that all the accounts are there.
         retrieved = response.get_json()
         self.assertEqual(len(retrieved), count)
 
@@ -249,10 +259,10 @@ class TestAccountService(TestCase):
 
         response = self.client.get(url)
 
-        #Check the status code
+        # Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Make sure that all the accounts are there.
+        # Make sure that all the accounts are there.
         retrieved = response.get_json()
         self.assertEqual(len(retrieved), 0)
 
@@ -268,6 +278,7 @@ class TestAccountService(TestCase):
 
     def test_force_to_https(self):
         """A request should respond with the correct security headers"""
+
         resp = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
 
         required_headers = {
@@ -281,9 +292,8 @@ class TestAccountService(TestCase):
         for header, value in required_headers.items():
             self.assertEqual(resp.headers.get(header), value)
 
-
     def test_for_cors_headers(self):
         """A request should respond with the correct CORS headers"""
+
         resp = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(resp.headers.get('Access-Control-Allow-Origin'), '*')
-        
