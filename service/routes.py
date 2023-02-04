@@ -97,7 +97,7 @@ def read_account(id):
     if not account:
         message = f"No account with [{id}] was found"
         return abort(status.HTTP_404_NOT_FOUND, message)
-    
+
     message = account.serialize()
 
     return make_response(
