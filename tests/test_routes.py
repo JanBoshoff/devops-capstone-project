@@ -264,7 +264,7 @@ class TestAccountService(TestCase):
     ######################################################################
 
     def test_force_to_https(self):
-        """It should return headers that contain the security headers"""
+        """A request should respond with the correct security headers"""
         resp = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
 
         required_headers = {
