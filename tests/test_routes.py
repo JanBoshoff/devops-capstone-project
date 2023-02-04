@@ -14,6 +14,7 @@ from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
 from service import talisman
+from datetime import date
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -302,3 +303,23 @@ class TestAccountService(TestCase):
 
         resp = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(resp.headers.get('Access-Control-Allow-Origin'), '*')
+
+    def test_for_account_to_string(self):
+        """Account repr should return the account name and id"""
+
+        account = self._create_accounts(1)[0]
+
+        string_test = account.__repr__()
+
+        self.assertEqual(string_test, '<Account {name} id=[{id}]>'.format(name=account.name, id=account.id))
+
+    def test_for_account_with_no_date_joined(self):
+        """Deserialize with no date joined value makes date joined today"""
+
+        account = self._create_accounts(1)[0]
+        serial = account.serialize()
+        serial['date_joined'] = None
+
+        account.deserialize(serial)
+
+        self.assertEqual(account.date_joined, date.today())
