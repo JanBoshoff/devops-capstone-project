@@ -78,7 +78,7 @@ class TestAccountService(TestCase):
             account.id = new_account["id"]
             accounts.append(account)
         return accounts
-    
+
     def _assert_that_accounts_are_the_same(self, a, b):
         self.assertEqual(a["name"], b.name)
         self.assertEqual(a["email"], b.email)
@@ -91,7 +91,6 @@ class TestAccountService(TestCase):
             return BASE_URL
 
         return '{base}/{id}'.format(base=BASE_URL, id=id)
-        
 
     ######################################################################
     #  A C C O U N T   T E S T   C A S E S
@@ -154,9 +153,10 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
         """Reading an account should show the information of a specified account"""
+
         account = self._create_accounts(1)[0]
         url = self._get_accounts_url(account.id)
-        
+
         response = self.client.get(url)
 
         # Check the status code
@@ -168,6 +168,7 @@ class TestAccountService(TestCase):
 
     def test_read_a_nonexisting_account(self):
         """Reading an account that does not exist should return a 404 error"""
+
         response = self.client.get(
             '{base}/{id}'.format(base=BASE_URL, id=0),
         )
@@ -176,6 +177,7 @@ class TestAccountService(TestCase):
 
     def test_update_account(self):
         """Updating an account should persist the new information"""
+
         account = self._create_accounts(1)[0]
         account.name = 'UpdateTest'
         account.phone_number = '000-000'
@@ -187,7 +189,7 @@ class TestAccountService(TestCase):
             json=account.serialize(),
             content_type="application/json"
         )
-        
+
         # Check the status code
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -198,6 +200,7 @@ class TestAccountService(TestCase):
 
     def test_update_non_existing_account(self):
         """Updating an account that does not exist should return a 404 error"""
+
         account = self._create_accounts(1)[0]
         account.name = 'UpdateTest'
 
@@ -215,6 +218,7 @@ class TestAccountService(TestCase):
 
     def test_delete_account(self):
         """Deleting an account should remove the account from the system"""
+
         account = self._create_accounts(1)[0]
 
         url = self._get_accounts_url(account.id)
@@ -231,6 +235,7 @@ class TestAccountService(TestCase):
     
     def test_delete_non_existing_account(self):
         """Deleting an account that does not exist should also return a 204 status"""
+
         url = self._get_accounts_url(0)
 
         response = self.client.delete(url)
@@ -240,6 +245,7 @@ class TestAccountService(TestCase):
 
     def test_list_accounts(self):
         """It should retrieve a list of all accounts in the system."""
+
         count = 5
         self._create_accounts(count)
 
@@ -255,6 +261,7 @@ class TestAccountService(TestCase):
 
     def test_list_accounts_if_no_accounts_found(self):
         """It should respond with an empty list and a 200 status code."""
+
         url = self._get_accounts_url(None)
 
         response = self.client.get(url)
@@ -268,9 +275,9 @@ class TestAccountService(TestCase):
 
     def test_method_not_allowed(self):
         """It should not allow an illegal method call"""
+
         resp = self.client.delete(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-
 
     ######################################################################
     #  S E C U R I T Y   T E S T   C A S E S
