@@ -12,6 +12,7 @@ from tests.factories import AccountFactory
 from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
+from service import talisman
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -35,6 +36,8 @@ class TestAccountService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
+
+        talisman.force_https = False
 
     @classmethod
     def tearDownClass(cls):
@@ -260,7 +263,7 @@ class TestAccountService(TestCase):
 
 
     ######################################################################
-    #  A C C O U N T   T E S T   C A S E S
+    #  S E C U R I T Y   T E S T   C A S E S
     ######################################################################
 
     def test_force_to_https(self):
